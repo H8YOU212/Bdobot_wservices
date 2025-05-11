@@ -1,0 +1,3 @@
+[submodule "bdobot"]
+	path = bdobot
+	url = https://github.com/H8YOU212/bdobot.git
