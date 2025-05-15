@@ -6,11 +6,11 @@ using MongoDB.Driver;
 
 namespace DB {
     public class Variable{
-        public static string Uri { get; set; }
-        public static string DbName { get; set; }
-        public static string coll {get; set;}
-        public static object client {get; set;}
-        public static object db {get; set;}
+        public static string? Uri { get; set; }
+        public static string? DbName { get; set; }
+        public static string? coll {get; set;}
+        public static object? client {get; set;}
+        public static object? db {get; set;}
     }
 
     class DefineENV{
@@ -32,7 +32,7 @@ namespace DB {
     class Connection{
         public IMongoDatabase Conn() {
             DefineENV variables = new DefineENV();
-            Variable variable = new Variable();
+            // Variable variable = new Variable();
 
             (string Uri, string dbname) =  variables.LoadEnvironmentVariables();
 
@@ -52,17 +52,20 @@ namespace DB {
 
     class Methods{
         private readonly IMongoDatabase _database;
-        public Methods(IMongoDatabase database){
+        public Methods(IMongoDatabase database) {
             _database = database;
         }
         public void Insert(string Coll, BsonDocument document) {
+            CheckExistColl checkExistColl = new CheckExistColl(_database);
+            checkExistColl.CheckExist(Coll);
             var collection = _database.GetCollection<BsonDocument>(Coll);
-            var collectionNames = _database.ListCollectionNames().ToList();
-            foreach (var name in collectionNames)
-            {
-                Console.WriteLine(name);
+            try {
+                collection.InsertOne(document);
+                Console.WriteLine("Insert complete");
             }
-            collection.InsertOne(document);
+            catch{
+                Console.WriteLine("The insertion returned an error");
+            }
         }
 
         public void Delete(string Coll, BsonDocument document) {
